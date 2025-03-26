@@ -24,10 +24,8 @@ Welcome to the C++ Projects Repository, a collection of unique and practical C++
 🔹 Intermediate Level
 ✅ Quiz Game with Scoreboard – A fun multiple-choice quiz game
 ✅ File Encryption & Decryption – Secure file encryption tool
-✅ Task Management System – A command-line to-do list
 
 🔹 Advanced Level
-✅ Library Management System – Manage books, issue/return system
 ✅ Smart Calculator with History – Scientific calculator with past calculations
 ✅ Student Grade Prediction – Machine learning-based grade predictor
 
