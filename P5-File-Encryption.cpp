@@ -1,57 +1,35 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
-void encryptFile(const string &filename, int key) {
-    ifstream inputFile(filename, ios::binary);
-    if (!inputFile) {
-        cout << "Error: Unable to open file!\n";
+void processFile(const string &inputName, const string &outputName, int key) {
+    ifstream inputFile(inputName, ios::binary);
+    ofstream outputFile(outputName, ios::binary);
+
+    if (!inputFile || !outputFile) {
+        cerr << "Error: File access failure." << endl;
         return;
     }
 
-    string encryptedFilename = filename + ".enc";
-    ofstream outputFile(encryptedFilename, ios::binary);
-    if (!outputFile) {
-        cout << "Error: Unable to create encrypted file!\n";
-        return;
-    }
+    const size_t BUFFER_SIZE = 64 * 1024;
+    vector<char> buffer(BUFFER_SIZE);
 
-    char ch;
-    while (inputFile.get(ch)) {
-        ch = ch ^ key;
-        outputFile.put(ch);
+    while (inputFile.read(buffer.data(), BUFFER_SIZE) || inputFile.gcount() > 0) {
+        streamsize bytesRead = inputFile.gcount();
+  
+        for (streamsize i = 0; i < bytesRead; ++i) {
+            buffer[i] ^= key;
+        }
+        
+        outputFile.write(buffer.data(), bytesRead);
     }
 
     inputFile.close();
     outputFile.close();
-    cout << "File encrypted successfully! Saved as " << encryptedFilename << endl;
-}
-
-void decryptFile(const string &filename, int key) {
-    ifstream inputFile(filename, ios::binary);
-    if (!inputFile) {
-        cout << "Error: Unable to open file!\n";
-        return;
-    }
-
-    string decryptedFilename = "decrypted_" + filename;
-    ofstream outputFile(decryptedFilename, ios::binary);
-    if (!outputFile) {
-        cout << "Error: Unable to create decrypted file!\n";
-        return;
-    }
-
-    char ch;
-    while (inputFile.get(ch)) {
-        ch = ch ^ key;
-        outputFile.put(ch);
-    }
-
-    inputFile.close();
-    outputFile.close();
-    cout << "File decrypted successfully! Saved as " << decryptedFilename << endl;
+    cout << "Transformation complete: " << outputName << endl;
 }
 
 int main() {
@@ -60,29 +38,23 @@ int main() {
     int key;
 
     while (true) {
-        cout << "\n1. Encrypt File\n2. Decrypt File\n3. Exit\n";
-        cout << "Enter choice: ";
-        cin >> choice;
+        cout << "\n1. Encrypt File\n2. Decrypt File\n3. Exit\nEnter choice: ";
+        if (!(cin >> choice)) break;
 
-        switch (choice) {
-            case 1:
-                cout << "Enter file name to encrypt: ";
-                cin >> filename;
-                cout << "Enter encryption key (numeric): ";
-                cin >> key;
-                encryptFile(filename, key);
-                break;
-            case 2:
-                cout << "Enter file name to decrypt: ";
-                cin >> filename;
-                cout << "Enter decryption key (same as encryption key): ";
-                cin >> key;
-                decryptFile(filename, key);
-                break;
-            case 3:
-                return 0;
-            default:
-                cout << "Invalid choice! Try again.\n";
+        if (choice == 3) return 0;
+
+        cout << "Enter file name: ";
+        cin >> filename;
+        cout << "Enter numeric key: ";
+        cin >> key;
+
+        if (choice == 1) {
+            processFile(filename, filename + ".enc", key);
+        } else if (choice == 2) {
+            processFile(filename, "decrypted_" + filename, key);
+        } else {
+            cout << "Invalid choice." << endl;
         }
     }
+    return 0;
 }
